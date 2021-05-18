@@ -3,17 +3,28 @@ package cmd
 import (
 	"fmt"
 	"github.com/spf13/cobra"
+	"io/ioutil"
 	"net"
 )
 
 func ClientRun(cmd *cobra.Command, args []string) {
 	conn, err := net.Dial("tcp", "127.0.0.1:5050")
+	defer conn.Close()
+
 	if err != nil {
 		fmt.Printf("conn server failed, err:%v\n", err)
 		return
 	}
 
-	conn.Write([]byte("sss"))
+	select {
+		case 
+
+	}
+
+	for {
+		data := ioutil.ReadAll(conn)
+		fmt.Println(data)
+	}
 }
 
 var clientCmd = &cobra.Command{

@@ -1,7 +1,10 @@
 package cmd
 
 import (
+	"bufio"
+	"fmt"
 	"github.com/spf13/cobra"
+	"net"
 )
 
 type Server struct {
@@ -16,8 +19,37 @@ func (s *Server) Init() {
 	s.DeviceName = "tun0"
 }
 
+func (s *Server) Process(conn net.Conn) {
+	defer conn.Close()
+
+	for {
+		reader := bufio.NewReader(conn)
+		var buf [2048]byte
+		n, err := reader.Read(buf[:])
+		if err != nil {
+			fmt.Printf("read from conn failed : %v\n", err)
+			break
+		}
+
+
+	}
+}
+
 func(s *Server) Run() {
-	
+	listen, err := net.Listen("tcp", fmt.Sprintf("%s:%d", s.Listen, s.Port))
+	if err != nil {
+		panic(err)
+	}
+	for {
+		conn, err := listen.Accept()
+		if err != nil {
+			fmt.Printf("accept failed: err： %v\n", err)
+			continue
+		}
+		go s.Process(conn)
+	}
+
+	go Mktun()
 }
 
 func ServerRun(cmd *cobra.Command, args []string) {
@@ -33,12 +65,7 @@ func ServerRun(cmd *cobra.Command, args []string) {
 var serverCmd = &cobra.Command{
 	Use:   "server",
 	Short: "A brief description of your command",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Long: `server`,
 	Run: ServerRun,
 }
 

@@ -49,9 +49,6 @@ func (c *Client) TunServer() {
 		var message Message
 		message.Buffer = make([]byte, 2048)
 		message.Len, err = c.Tun.Read(message.Buffer)
-
-		fmt.Printf("read from tun: %v\n", message.Len)
-
 		if err != nil {
 			panic(err)
 		}
@@ -91,7 +88,6 @@ func (c *Client) Run() {
 	for {
 		select {
 		case message := <-c.Messages:
-			fmt.Printf("get message : name %v\n", message.Name)
 			switch message.Name {
 			case "in-tun":
 				c.Conn.Write(message.Buffer[:message.Len])

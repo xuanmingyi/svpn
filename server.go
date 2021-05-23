@@ -104,7 +104,6 @@ func (s *Server) Run() {
 	for {
 		select {
 		case message := <-s.Messages:
-			fmt.Println(message.Name)
 			switch message.Name {
 			case "in-net":
 				s.Tun.Write(message.Buffer[:message.Len])

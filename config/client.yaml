@@ -1,0 +1,4 @@
+type: client
+host: 18.1.1.101
+port: 5050
+device: tun0

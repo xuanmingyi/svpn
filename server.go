@@ -58,6 +58,22 @@ func (s *Server) Process(conn net.Conn) {
 func (s *Server) TunServer() {
 	var err error
 	s.Tun, err = MakeTunDevice(s.Service.Device)
+
+	if err != nil {
+		log.Printf("ssssss %v\n", err)
+		return
+	}
+
+	for {
+		var message Message
+		message.Buffer = make([]byte, 2048)
+		message.Len, err = s.Tun.Read(message.Buffer)
+		if err != nil {
+			panic(err)
+		}
+		message.Name = "in-tun"
+		s.Messages <- message
+	}
 }
 
 func (s *Server) TcpServer() {
@@ -83,15 +99,19 @@ func (s *Server) TcpServer() {
 func (s *Server) Run() {
 	go s.TcpServer()
 
+	go s.TunServer()
+
 	for {
 		select {
 		case message := <-s.Messages:
+			fmt.Println(message.Name)
 			switch message.Name {
 			case "in-net":
-				fmt.Println("hello net")
+				s.Tun.Write(message.Buffer[:message.Len])
 			case "in-tun":
-				fmt.Println("hello tun")
-
+				for _, client := range s.Conns {
+					client.Write(message.Buffer[:message.Len])
+				}
 			}
 		}
 	}

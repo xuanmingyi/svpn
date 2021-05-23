@@ -1,7 +1,5 @@
 #!/bin/bash
 
-
-
 ip netns exec ns1 ip link set veth1 netns 1
 ip netns exec ns2 ip link set veth2 netns 1
 
